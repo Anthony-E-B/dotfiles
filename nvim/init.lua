@@ -1,26 +1,24 @@
---[[
-      ___           ___           ___                                     ___         
-     /\  \         /\__\         /\  \          ___                      /\  \    
-     \:\  \       /:/ _/_       /::\  \        /\  \        ___         |::\  \   
-      \:\  \     /:/ /\__\     /:/\:\  \       \:\  \      /\__\        |:|:\  \  
-  _____\:\  \   /:/ /:/ _/_   /:/  \:\  \       \:\  \    /:/__/      __|:|\:\  \ 
- /::::::::\__\ /:/_/:/ /\__\ /:/__/ \:\__\  ___  \:\__\  /::\  \     /::::|_\:\__\
- \:\~~\~~\/__/ \:\/:/ /:/  / \:\  \ /:/  / /\  \ |:|  |  \/\:\  \__  \:\~~\  \/__/
-  \:\  \        \::/_/:/  /   \:\  /:/  /  \:\  \|:|  |   ~~\:\/\__\  \:\  \      
-   \:\  \        \:\/:/  /     \:\/:/  /    \:\__|:|__|      \::/  /   \:\  \     
-    \:\__\        \::/  /       \::/  /      \::::/__/       /:/  /     \:\__\    
-     \/__/         \/__/         \/__/        ~~~~           \/__/       \/__/    
 
 
-Welcome to NEOVIM Kickstart.
-https://github.com/nvim-lua/kickstart.nvim
 
---]]
+
+
+---- Global Configuration Variables ----
+
+local searchDebounceDelay = 100 -- Debounce delay for searches with telescope (ms)
+
+-- Themes used for <leader>thl and <leader>thd keymaps
+local darkThemeName = 'github_dark_default' -- Default dark theme
+local lightThemeName = 'github_light' -- Default light theme
+
+----------------------------------------
+
+
+
 
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
---
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
@@ -49,6 +47,7 @@ vim.opt.rtp:prepend(lazypath)
 -- Default tabstop/shiftwidth
 vim.opt.shiftwidth = 2;
 vim.opt.tabstop = 2;
+
 vim.opt.scrolloff = 5;
 
 vim.opt.cursorline = true;
@@ -80,8 +79,6 @@ vim.cmd([[
 require('lazy').setup({
   'tweekmonster/startuptime.vim',
 
-  'qbbr/vim-symfony',
-
   {
     "folke/todo-comments.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
@@ -106,10 +103,6 @@ require('lazy').setup({
     'tpope/vim-fugitive',
     event = "VeryLazy"
   },
-  {
-    'tpope/vim-rhubarb',
-    -- event = "VeryLazy"
-  },
 
   -- Detect tabstop and shiftwidth automatically
   {
@@ -133,11 +126,22 @@ require('lazy').setup({
   },
 
   {
+    'lervag/vimtex',
+    lazy = false,
+  },
+
+  {
     'nvim-tree/nvim-tree.lua',
     dependencies = {
       'nvim-tree/nvim-web-devicons'
     },
-    event = "VeryLazy",
+    keys = {
+      { '<leader>fe', '<Cmd>NvimTreeFocus<CR>', desc = "[F]ile [E]xplorer" },
+      { '<leader>ft', '<Cmd>NvimTreeToggle<CR>', desc = "[F]ile Explorer [T]oggle" },
+      { '<leader>ff', '<Cmd>NvimTreeFindFile<CR>', desc = "[F]ind [F]ile" },
+      { '<leader>fc', '<Cmd>NvimTreeClose<CR>', desc = "[F]ile Explorer [C]lose" },
+      { '<leader>fr', '<Cmd>NvimTreeRefresh<CR>', desc = "[F]ile Explorer [R]efresh" },
+    },
     config = function (self, opts)
       require('nvim-tree').setup({
         actions = {
@@ -180,6 +184,7 @@ require('lazy').setup({
     config = function()
       require('auto-session').setup({
         log_level = "error",
+        auto_session_use_git_branch = true,
       });
       vim.g.auto_session_pre_save_cmds = { "tabdo NvimTreeClose" }
     end,
@@ -242,26 +247,20 @@ require('lazy').setup({
         vim.keymap.set('n', '<leader>ph', require('gitsigns').preview_hunk, { buffer = bufnr, desc = '[P]review [H]unk' })
       end,
     },
-    lazy = false
+    event = "VeryLazy",
   },
 
   -- Theme
   {
     'projekt0n/github-nvim-theme',
     config = function()
-      require('github-theme').setup({
-        dim_inactive = true,
-      });
-      vim.cmd.colorscheme 'github_dark_default'
-      vim.keymap.set('n', '<leader>tl', '<Cmd>colo github_light<CR>', { desc = "[T]heme [L]ight"});
-      vim.keymap.set('n', '<leader>td', '<Cmd>colo github_dark_default<CR>', { desc = "[T]heme [D]ark"});
+      vim.cmd.colorscheme('github_dark_default')
     end,
     lazy = false,
   },
   {
     "catppuccin/nvim",
     name = "catppuccin",
-    priority = 1000,
     config = function ()
       -- vim.cmd.colorscheme "catppuccin-frappe"
       -- vim.cmd.colorscheme "catppuccin-macchiato" -- darker variant
@@ -282,8 +281,7 @@ require('lazy').setup({
         section_separators = '',
       },
     },
-    lazy = false,
-    -- event = "VeryLazy"
+    event = "VeryLazy"
   },
 
   {
@@ -373,7 +371,7 @@ require('lazy').setup({
     config = function ()
       require('nvim-treesitter.configs').setup {
         -- Add languages to be installed here that you want installed for treesitter
-        ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim' },
+        ensure_installed = { 'c', 'cpp', 'lua', 'python', 'typescript', 'vimdoc', 'vim' },
 
         -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
         auto_install = false,
@@ -443,14 +441,14 @@ require('lazy').setup({
   },
   {
       'akinsho/flutter-tools.nvim',
-      lazy = false,
       dependencies = {
           'nvim-lua/plenary.nvim',
           'stevearc/dressing.nvim', -- optional for vim.ui.select
       },
       config = function (self, opts)
         require("flutter-tools").setup {} -- use defaults
-      end
+      end,
+      event = "VeryLazy",
   }
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
@@ -472,16 +470,9 @@ require('lazy').setup({
     }
 })
 
-
-
-
-vim.keymap.set('n', '<leader>fe', '<Cmd>NvimTreeFocus<CR>', { desc = "[F]ile [E]xplorer"});
-vim.keymap.set('n', '<leader>ft', '<Cmd>NvimTreeToggle<CR>', { desc = "[F]ile Explorer [T]oggle"});
-vim.keymap.set('n', '<leader>ff', '<Cmd>NvimTreeFindFile<CR>', { desc = "[F]ind [F]ile"});
-vim.keymap.set('n', '<leader>fc', '<Cmd>NvimTreeClose<CR>', { desc = "[F]ile Explorer [C]lose"});
-vim.keymap.set('n', '<leader>fr', '<Cmd>NvimTreeRefresh<CR>', { desc = "[F]ile Explorer [R]efresh"});
-
 vim.keymap.set('n', '<leader>ssf', '<Cmd>syntax sync fromstart<CR>', { desc = "[S]yntax [S]ync [F]romstart"});
+vim.keymap.set('n', '<leader>thl', '<Cmd>colo '..lightThemeName..'<CR>', { desc = "[T]heme [L]ight"});
+vim.keymap.set('n', '<leader>thd', '<Cmd>colo '..darkThemeName..'<CR>', { desc = "[T]heme [D]ark"});
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -573,9 +564,6 @@ require('telescope').setup({
 
 -- Use fzf to search files and respect .gitignore rules
 -- vim.env.FZF_DEFAULT_COMMAND = [=[rg --files --hidden --follow --glob "!.git/*" --glob "!.gitignore" 2>/dev/null || find * -path "*/\.*" -prune -o -type f -print -o -type l -print 2>/dev/null | sed s/^..//]=]
-
-
--- Use fzf to search files and respect .gitignore rules
 vim.fn.setenv("FZF_DEFAULT_COMMAND", "git ls-files --cached --others --exclude-standard | fzf")
 
 -- Set the prefix command for fzf file search
@@ -592,12 +580,18 @@ vim.keymap.set('n', '<leader>/', function()
   })
 end, { desc = '[/] Fuzzily search in current buffer' })
 
-vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
-vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
-vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
-vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
-vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
+local debounceTelescope = function(func)
+  return function()
+    func({ debounce=searchDebounceDelay })
+  end
+end
+
+vim.keymap.set('n', '<leader>gf', debounceTelescope(require('telescope.builtin').git_files), { desc = 'Search [G]it [F]iles' })
+vim.keymap.set('n', '<leader>sf', debounceTelescope(require('telescope.builtin').find_files), { desc = '[S]earch [F]iles' })
+vim.keymap.set('n', '<leader>sh', debounceTelescope(require('telescope.builtin').help_tags), { desc = '[S]earch [H]elp' })
+vim.keymap.set('n', '<leader>sw', debounceTelescope(require('telescope.builtin').grep_string), { desc = '[S]earch current [W]ord' })
+vim.keymap.set('n', '<leader>sg', debounceTelescope(require('telescope.builtin').live_grep), { desc = '[S]earch by [G]rep' })
+vim.keymap.set('n', '<leader>sd', debounceTelescope(require('telescope.builtin').diagnostics), { desc = '[S]earch [D]iagnostics' })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -616,11 +610,7 @@ vim.diagnostic.config({
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
 local on_attach = function(_, bufnr)
-  -- NOTE: Remember that lua is a real programming language, and as such it is possible
-  -- to define small helper and utility functions so you don't have to repeat yourself
-  -- many times.
-  --
-  -- In this case, we create a function that lets us more easily define mappings specific
+  -- We create a function that lets us more easily define mappings specific
   -- for LSP related items. It sets the mode, buffer and description for us each time.
   local nmap = function(keys, func, desc)
     if desc then
@@ -726,22 +716,6 @@ cmp.setup {
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete {},
-    -- ['<CR>'] = cmp.mapping.confirm {
-    --   behavior = cmp.ConfirmBehavior.Replace,
-    --   select = true,
-    -- },
-    -- ['<CR>'] = cmp.mapping(function(fallback)
-    --   if luasnip.expand_or_locally_jumpable() then
-    --     luasnip.expand_or_jump()
-    --   else
-    --     fallback()
-    --   end
-    -- end, { 'i', 's' }),
-
-    -- ['<Tab>'] = cmp.mapping.confirm {
-    --   -- behavior = cmp.ConfirmBehavior.Replace,
-    --   select = true,
-    -- },
     ['<Tab>'] = function(fallback)
       if cmp.visible() then
         local selected_entry = cmp.get_selected_entry()
@@ -754,25 +728,6 @@ cmp.setup {
         fallback()
       end
     end,
-
-    -- ['<Tab>'] = cmp.mapping(function(fallback)
-    --   if cmp.visible() then
-    --     cmp.select_next_item()
-    --   elseif luasnip.expand_or_locally_jumpable() then
-    --     luasnip.expand_or_jump()
-    --   else
-    --     fallback()
-    --   end
-    -- end, { 'i', 's' }),
-    -- ['<S-Tab>'] = cmp.mapping(function(fallback)
-    --   if cmp.visible() then
-    --     cmp.select_prev_item()
-    --   elseif luasnip.locally_jumpable(-1) then
-    --     luasnip.jump(-1)
-    --   else
-    --     fallback()
-    --   end
-    -- end, { 'i', 's' }),
   },
   sources = {
     { name = 'nvim_lsp' },
