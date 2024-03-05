@@ -1,17 +1,13 @@
 function lsa() {Get-ChildItem && Get-ChildItem -Hidden -System}
-function ll() {
-	lsa;
-}
-function l() {
-	lsa;
-}
-function nt {
-    # Open new tab in current directory
-    $currentPath = (Get-Location).Path
-    wt.exe -w 0 new-tab -d $currentPath
-}
+Set-Alias -Name ll -Value lsa
+Set-Alias -Name l -Value lsa
 
-function which ($command) {
+function CopyPath {
+	Set-Clipboard ("'" + (Get-Location).Path + "'")
+}
+Set-Alias -Name cpy -Value CopyPath
+
+function which($command) {
     Get-Command -Name $command -ErrorAction SilentlyContinue | 
         Select-Object -ExpandProperty Path -ErrorAction SilentlyContinue
 }
@@ -26,13 +22,13 @@ function gsts() {git status $args}
 function gad() {git add $args}
 function gdif() {git diff $args}
 
-New-Alias -Name trash -Value Remove-ItemSafely
-New-Alias -Name python3 -Value python
-New-Alias -Name time -Value Measure-Command
-New-Alias -Name nvmi -Value nvim
-New-Alias -Name nvi -Value nvim
-New-Alias -Name vi -Value vim
-New-Alias -Name touch -Value New-Item
+Set-Alias -Name trash -Value Remove-ItemSafely
+Set-Alias -Name python3 -Value python
+Set-Alias -Name time -Value Measure-Command
+Set-Alias -Name nvmi -Value nvim
+Set-Alias -Name nvi -Value nvim
+Set-Alias -Name vi -Value vim
+Set-Alias -Name touch -Value New-Item
 
 function DisplayColors {
 	$colors = [enum]::GetValues([System.ConsoleColor])
@@ -63,10 +59,6 @@ function WelcomeMessage {
 	}
 }
 
-function CopyPath {
-	Set-Clipboard ("'" + (Get-Location).Path + "'")
-}
-Set-Alias -Name cpy -Value CopyPath
-
 WelcomeMessage
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\microverse-power.omp.json" | Invoke-Expression
+
