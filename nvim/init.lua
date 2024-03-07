@@ -1,6 +1,6 @@
 
 
-
+pcall(require, 'local');
 
 
 ---- Global Configuration Variables ----
@@ -122,7 +122,10 @@ require('lazy').setup({
 
   {
     'github/copilot.vim',
-    event = "VeryLazy"
+    keys = {
+      { '<leader>ce', '<Cmd>Copilot enable<CR>', desc = "[C]opilot [E]nable" },
+      { '<leader>cd', '<Cmd>Copilot disable<CR>', desc = "[C]opilot [D]isable" },
+    }
   },
 
   {
