@@ -78,7 +78,10 @@ vim.cmd([[
 --  You can also configure plugins after the setup call,
 --    as they will be available in your neovim runtime.
 require('lazy').setup({
-  'tweekmonster/startuptime.vim',
+  {
+    'dstein64/vim-startuptime',
+    cmd = "StartupTime",
+  },
 
   {
     "folke/todo-comments.nvim",
@@ -190,7 +193,7 @@ require('lazy').setup({
         log_level = "error",
         auto_session_use_git_branch = true,
       });
-      vim.g.auto_session_pre_save_cmds = { "tabdo NvimTreeClose" }
+      vim.g.auto_session_pre_save_cmds = { "silent! tabdo NvimTreeClose" }
     end,
     lazy = false,
   },
@@ -270,7 +273,7 @@ require('lazy').setup({
       -- vim.cmd.colorscheme "catppuccin-macchiato" -- darker variant
       -- vim.cmd.colorscheme "catppuccin-mocha" -- darker variant
     end,
-    -- lazy = false
+    lazy = false
   },
 
   {
@@ -318,39 +321,41 @@ require('lazy').setup({
   { 'numToStr/Comment.nvim', opts = {}, lazy = false },
 
   {
-      "nvim-neorg/neorg",
-      build = ":Neorg sync-parsers",
-      dependencies = { "nvim-lua/plenary.nvim" },
-      config = function()
-        vim.opt.conceallevel = 2
-        require("neorg").setup {
-          load = {
-            ["core.defaults"] = {}, -- Loads default behaviour
-            ["core.concealer"] = {}, -- Adds pretty icons to your documents
-            ["core.completion"] = {
-              config = {
-                engine = "nvim-cmp",
-              },
-            }, -- Completion
-            ["core.dirman"] = { -- Manages Neorg workspaces
-              config = {
-                workspaces = {
-                  personal = "~/Documents/notes/personal",
-                  iut = "~/Documents/notes/IUT",
-                },
-                index = "index.norg"
-              },
-              default_workspace = "iut"
+    "nvim-neorg/neorg",
+    build = ":Neorg sync-parsers",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      vim.opt.conceallevel = 2
+      require("neorg").setup {
+        load = {
+          ["core.defaults"] = {}, -- Loads default behaviour
+          ["core.concealer"] = {}, -- Adds pretty icons to your documents
+          ["core.completion"] = {
+            config = {
+              engine = "nvim-cmp",
             },
-            ['core.summary'] = {}
+          }, -- Completion
+          ["core.dirman"] = { -- Manages Neorg workspaces
+            config = {
+              workspaces = {
+                personal = "~/Documents/notes/personal",
+                iut = "~/Documents/notes/IUT",
+              },
+              index = "index.norg"
+            },
+            default_workspace = "iut"
           },
-        }
-      end,
-      vim.keymap.set('n', '<leader>ni', '<Cmd>Neorg index<CR>', { desc = "[N]eorg [I]index"});
-      vim.keymap.set('n', '<leader>nw', ':Neorg workspace ', { desc = "[N]eorg [W]orkspace..."});
-      vim.keymap.set('n', '<leader>nj', '<Cmd>Neorg journal<CR>', { desc = "[N]eorg [W]orkspace..."});
-      lazy = false,
+          ['core.summary'] = {}
+        },
+      }
+    end,
+    keys = {
+      { '<leader>ni', '<Cmd>Neorg index<CR>', desc = "[N]eorg [I]index" },
+      { '<leader>nw', ':Neorg workspace ', desc = "[N]eorg [W]orkspace..." },
+      { '<leader>nj', '<Cmd>Neorg journal<CR>', desc = "[N]eorg [J]ournal" },
     },
+    cmd = "Neorg"
+  },
 
 
   -- Fuzzy Finder (files, lsp, etc)
