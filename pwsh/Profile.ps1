@@ -29,6 +29,7 @@ Set-Alias -Name nvmi -Value nvim
 Set-Alias -Name nvi -Value nvim
 Set-Alias -Name vi -Value vim
 Set-Alias -Name touch -Value New-Item
+Set-Alias -Name g -Value git
 
 function DisplayColors {
 	$colors = [enum]::GetValues([System.ConsoleColor])
