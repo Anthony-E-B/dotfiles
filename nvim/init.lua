@@ -50,6 +50,7 @@ vim.opt.shiftwidth = 2;
 vim.opt.tabstop = 2;
 
 vim.opt.scrolloff = 5;
+vim.opt.conceallevel = 2;
 
 vim.opt.cursorline = true;
 vim.opt.cursorcolumn = true;
@@ -78,6 +79,13 @@ vim.cmd([[
 --  You can also configure plugins after the setup call,
 --    as they will be available in your neovim runtime.
 require('lazy').setup({
+
+  {
+    "vhyrro/luarocks.nvim",
+    priority = 1000,
+    config = true, -- This automatically runs `require("luarocks-nvim").setup()`
+  },
+
   {
     'dstein64/vim-startuptime',
     cmd = "StartupTime",
@@ -322,10 +330,10 @@ require('lazy').setup({
 
   {
     "nvim-neorg/neorg",
-    build = ":Neorg sync-parsers",
-    dependencies = { "nvim-lua/plenary.nvim" },
+    dependencies = {
+      "luarocks.nvim",
+    },
     config = function()
-      vim.opt.conceallevel = 2
       require("neorg").setup {
         load = {
           ["core.defaults"] = {}, -- Loads default behaviour
