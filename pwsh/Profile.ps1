@@ -30,6 +30,7 @@ Set-Alias -Name nvi -Value nvim
 Set-Alias -Name vi -Value vim
 Set-Alias -Name touch -Value New-Item
 Set-Alias -Name g -Value git
+Set-Alias -Name spl -Value Split-Path
 
 function DisplayColors {
 	$colors = [enum]::GetValues([System.ConsoleColor])
