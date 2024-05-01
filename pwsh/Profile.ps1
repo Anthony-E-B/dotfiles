@@ -21,6 +21,9 @@ function sl() {
 function gsts() {git status $args}
 function gad() {git add $args}
 function gdif() {git diff $args}
+function co() {
+	git checkout $args
+}
 
 Set-Alias -Name trash -Value Remove-ItemSafely
 Set-Alias -Name python3 -Value python
