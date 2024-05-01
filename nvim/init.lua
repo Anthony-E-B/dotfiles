@@ -1,5 +1,4 @@
 
-
 package.path = package.path .. ";" .. vim.fn.stdpath('config') .. '/?.lua';
 pcall(require, 'local');
 
@@ -22,12 +21,6 @@ local lightThemeName = 'github_light' -- Default light theme
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
-
-vim.api.nvim_set_keymap("i", "<C-K>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
-
-vim.g.copilot_no_tab_map = true
-vim.g.copilot_assume_mapped = true
-vim.g.copilot_tab_fallback = ""
 
 -- Install package manager
 --    https://github.com/folke/lazy.nvim
@@ -133,11 +126,23 @@ require('lazy').setup({
   },
 
   {
-    'github/copilot.vim',
+    'zbirenbaum/copilot.lua',
     keys = {
       { '<leader>ce', '<Cmd>Copilot enable<CR>', desc = "[C]opilot [E]nable" },
       { '<leader>cd', '<Cmd>Copilot disable<CR>', desc = "[C]opilot [D]isable" },
-    }
+    },
+    cmd = "Copilot",
+    config = function ()
+      require('copilot').setup({
+        suggestion = {
+          auto_trigger = true,
+          keymap = {
+            accept = "<C-K>",
+            dismiss = "<C-J>",
+          },
+        },
+      });
+    end
   },
 
   {
