@@ -8,8 +8,8 @@ pcall(require, 'local');
 local searchDebounceDelay = 100 -- Debounce delay for searches with telescope (ms)
 
 -- Themes used for <leader>thl and <leader>thd keymaps
-local darkThemeName = 'github_dark_default' -- Default dark theme
-local lightThemeName = 'github_light' -- Default light theme
+DarkThemeName = 'github_dark_default' -- Default dark theme
+LightThemeName = 'github_light' -- Default light theme
 
 ----------------------------------------
 
@@ -48,12 +48,13 @@ vim.opt.conceallevel = 2;
 vim.opt.cursorline = true;
 vim.opt.cursorcolumn = true;
 
-vim.cmd([[
-  function! LoadNeorgWorkspace(workspace)
-    silent execute 'Neorg workspace ' . a:workspace
-    silent execute 'Neorg index'
-  endfunction
-]])
+function LoadNeorgWorkspace(workspace)
+  vim.cmd('Neorg workspace ' .. workspace)
+  vim.cmd('Neorg index')
+  DarkThemeName = 'catppuccin-mocha';
+  LightThemeName = 'catppuccin-latte'
+  vim.cmd.colorscheme(DarkThemeName)
+end
 
 vim.cmd([[
   augroup BinaryFileAutoCommand
@@ -77,6 +78,11 @@ require('lazy').setup({
     "vhyrro/luarocks.nvim",
     priority = 1000,
     config = true, -- This automatically runs `require("luarocks-nvim").setup()`
+  },
+
+  {
+    "rcarriga/nvim-notify",
+    lazy = false,
   },
 
   {
@@ -348,16 +354,7 @@ require('lazy').setup({
               engine = "nvim-cmp",
             },
           }, -- Completion
-          ["core.dirman"] = { -- Manages Neorg workspaces
-            config = {
-              workspaces = {
-                personal = "~/Documents/notes/personal",
-                iut = "~/Documents/notes/IUT",
-              },
-              index = "index.norg"
-            },
-            default_workspace = "iut"
-          },
+          ["core.dirman"] = DIRMAN_CONFIG,
           ['core.summary'] = {}
         },
       }
@@ -493,8 +490,8 @@ require('lazy').setup({
 })
 
 vim.keymap.set('n', '<leader>ssf', '<Cmd>syntax sync fromstart<CR>', { desc = "[S]yntax [S]ync [F]romstart"});
-vim.keymap.set('n', '<leader>thl', '<Cmd>colo '..lightThemeName..'<CR>', { desc = "[T]heme [L]ight"});
-vim.keymap.set('n', '<leader>thd', '<Cmd>colo '..darkThemeName..'<CR>', { desc = "[T]heme [D]ark"});
+vim.keymap.set('n', '<leader>thl', '<Cmd>lua vim.cmd.colorscheme(LightThemeName)<CR>', { desc = "[T]heme [L]ight"});
+vim.keymap.set('n', '<leader>thd', '<Cmd>lua vim.cmd.colorscheme(DarkThemeName)<CR>', { desc = "[T]heme [D]ark"});
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -718,6 +715,15 @@ mason_lspconfig.setup_handlers {
     }
   end
 }
+
+require('lspconfig').volar.setup({
+  filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
+  init_options = {
+    vue = {
+      hybridMode = false,
+    },
+  },
+})
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
