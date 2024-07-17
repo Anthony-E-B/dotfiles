@@ -242,6 +242,9 @@ require('lazy').setup({
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
     },
+    config = function ()
+      vim.lsp.set_log_level("warn")
+    end
   },
 
   {
@@ -349,9 +352,6 @@ require('lazy').setup({
 
   {
     "nvim-neorg/neorg",
-    dependencies = {
-      "luarocks.nvim",
-    },
     config = function()
       require("neorg").setup {
         load = {
