@@ -1,4 +1,4 @@
-function lsa() {Get-ChildItem && Get-ChildItem -Hidden -System}
+function lisa() {Get-ChildItem && Get-ChildItem -Hidden -System}
 Set-Alias -Name ll -Value lsa
 Set-Alias -Name l -Value lsa
 
