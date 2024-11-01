@@ -25,6 +25,14 @@ function co() {
 	git checkout $args
 }
 
+function t() {
+	if (Test-Path env:windir) {
+		& (Join-Path -Path ($env:windir) -ChildPath "system32/tree.com") /F $args
+	} else {
+		Write-Warning "The 't' alias only works within valid windows installs!"
+	}
+}
+
 Set-Alias -Name trash -Value Remove-ItemSafely
 Set-Alias -Name python3 -Value python
 Set-Alias -Name time -Value Measure-Command
@@ -34,6 +42,7 @@ Set-Alias -Name vi -Value vim
 Set-Alias -Name touch -Value New-Item
 Set-Alias -Name g -Value git
 Set-Alias -Name spl -Value Split-Path
+
 
 function DisplayColors {
 	$colors = [enum]::GetValues([System.ConsoleColor])
@@ -65,5 +74,5 @@ function WelcomeMessage {
 }
 
 WelcomeMessage
-oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\microverse-power.omp.json" | Invoke-Expression
+oh-my-posh init pwsh --config "$env:APPDATA\oh-my-posh\omp-config.json" | Invoke-Expression
 
