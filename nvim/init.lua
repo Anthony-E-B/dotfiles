@@ -42,7 +42,7 @@ vim.opt.rtp:prepend(lazypath)
 vim.opt.shiftwidth = 2;
 vim.opt.tabstop = 2;
 
-vim.opt.scrolloff = 5;
+vim.opt.scrolloff = 3;
 vim.opt.conceallevel = 2;
 
 vim.opt.cursorline = true;
@@ -67,13 +67,11 @@ vim.cmd([[
   augroup END
 ]]);
 
--- NOTE: Here is where you install your plugins.
---  You can configure plugins using the `config` key.
 --
---  You can also configure plugins after the setup call,
---    as they will be available in your neovim runtime.
-require('lazy').setup({
+-- PLUGINS
+--
 
+require('lazy').setup({
   {
     "vhyrro/luarocks.nvim",
     priority = 1000,
@@ -83,7 +81,7 @@ require('lazy').setup({
   {
     "rcarriga/nvim-notify",
     config = function ()
-      vim.notify = require('notify')
+      vim.notify = require('notify') -- Override vim.notify
       require('notify').setup({
         stages = "static",
         timeout = 5000,
@@ -94,28 +92,12 @@ require('lazy').setup({
   },
 
   {
-    'dstein64/vim-startuptime',
-    cmd = "StartupTime",
-  },
-
-  {
     "folke/todo-comments.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {
     },
     event = "VeryLazy"
   },
-
-  --[[ {
-    'morhetz/gruvbox',
-    lazy = false,
-    config = function()
-      vim.g.gruvbox_contrast_light = 'hard'
-      vim.g.gruvbox_invert_tabline = 1
-      vim.opt.background = 'light';
-      vim.cmd.colo('gruvbox');
-    end,
-  }, ]]
 
   -- Git related plugins
   {
@@ -136,7 +118,7 @@ require('lazy').setup({
 
   {
     'nelsyeung/twig.vim',
-    lazy = false,
+    event = "VeryLazy"
   },
 
   {
@@ -159,10 +141,10 @@ require('lazy').setup({
     end
   },
 
-  {
+  --[[ {
     'lervag/vimtex',
-    lazy = false,
-  },
+    lazy = false, -- NOTE: Specific requirements of Vimtex
+  }, ]]
 
   {
     'nvim-tree/nvim-tree.lua',
@@ -188,19 +170,26 @@ require('lazy').setup({
           cmd = "Remove-ItemSafely "
         },
         view = {
-          width = 35,
+          width = {
+            min = 30,
+            max = 40,
+            padding = 1,
+          },
+          signcolumn = "auto",
         },
         modified = {
           enable = true,
         },
         renderer = {
           group_empty = true,
+          special_files = { 'Cargo.toml', 'Makefile', 'README.md', 'readme.md', '.gitignore', '.gitconfig', 'package.json', 'package-lock.json' },
+          hidden_display = "all",
         },
         filters = {
           git_ignored = false,
         },
         filesystem_watchers = {
-          ignore_dirs = { ".git", "node_modules", ".cache", ".vendor" },
+          ignore_dirs = { ".git", "node_modules", ".cache", "vendor", "var" },
         },
         live_filter = {
           always_show_folders = false,
@@ -388,7 +377,6 @@ require('lazy').setup({
   -- Fuzzy Finder Algorithm which requires local dependencies to be built.
 
   {
-    -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     dependencies = {
       'nvim-treesitter/nvim-treesitter-textobjects',
@@ -397,25 +385,22 @@ require('lazy').setup({
     event = "VeryLazy",
     config = function ()
       require('nvim-treesitter.configs').setup {
-        -- Add languages to be installed here that you want installed for treesitter
-        ensure_installed = { 'c', 'cpp', 'lua', 'python', 'typescript', 'vimdoc', 'vim' },
-
-        -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
+        ensure_installed = { 'c', 'cpp', 'lua', 'python', 'typescript', 'vimdoc', 'vim', 'query' },
         auto_install = false,
 
         highlight = {
           enable = true,
         },
         indent = {
-          enable = false,
+          enable = true,
         },
         incremental_selection = {
           enable = true,
           keymaps = {
-            init_selection = '<c-space>',
-            node_incremental = '<c-space>',
-            scope_incremental = '<c-s>',
-            node_decremental = '<M-space>',
+            init_selection = '<leader>ss',
+            node_incremental = '<leader>si',
+            scope_incremental = '<leader>sci',
+            node_decremental = '<leader>scd',
           },
         },
         textobjects = {
@@ -477,72 +462,57 @@ require('lazy').setup({
       end,
       event = "VeryLazy",
   }
-
-  -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
-  --       These are some example plugins that I've included in the kickstart repository.
-  --       Uncomment any of the lines below to enable them.
-  -- require 'kickstart.plugins.autoformat',
-  -- require 'kickstart.plugins.debug',
-
-  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
-  --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
-  --    up-to-date with whatever is in the kickstart repo.
-  --    Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  --
-  --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
-  -- { import = 'custom.plugins' },
 }, {
     defaults = {
       lazy = true,
     }
 })
 
-vim.keymap.set('n', '<leader>ssf', '<Cmd>syntax sync fromstart<CR>', { desc = "[S]yntax [S]ync [F]romstart"});
-vim.keymap.set('n', '<leader>thl', '<Cmd>lua vim.cmd.colorscheme(LightThemeName)<CR>', { desc = "[T]heme [L]ight"});
-vim.keymap.set('n', '<leader>thd', '<Cmd>lua vim.cmd.colorscheme(DarkThemeName)<CR>', { desc = "[T]heme [D]ark"});
+-- vim.keymap.set('n', '<leader>ssf', '<Cmd>syntax sync fromstart<CR>', { desc = "[S]yntax [S]ync [F]romstart"});
+vim.keymap.set('n', '<leader>sthl', '<Cmd>lua vim.cmd.colorscheme(LightThemeName)<CR>', { desc = "[S]witch [T]heme : [L]ight"});
+vim.keymap.set('n', '<leader>sthd', '<Cmd>lua vim.cmd.colorscheme(DarkThemeName)<CR>', { desc = "[S]witch [T]heme : [D]ark"});
 
 -- [[ Setting options ]]
--- See `:help vim.o`
--- NOTE: You can change these options as you wish!
 
 -- Set highlight on search
-vim.o.hlsearch = false
+vim.opt.hlsearch = false
 
 -- Make line numbers default
 vim.wo.number = true
+vim.wo.relativenumber = true
 
 -- Enable mouse mode
-vim.o.mouse = 'a'
+vim.opt.mouse = 'a'
 
-vim.o.fileformat = "unix"
+vim.opt.fileformat = "unix"
 
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
-vim.o.clipboard = 'unnamedplus'
+vim.opt.clipboard = 'unnamedplus'
 
 -- Enable break indent
-vim.o.breakindent = true
+vim.opt.breakindent = true
 
 -- Save undo history
-vim.o.undofile = true
+vim.opt.undofile = true
 
 -- Case-insensitive searching UNLESS \C or capital in search
-vim.o.ignorecase = true
-vim.o.smartcase = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
 
 -- Keep signcolumn on by default
 vim.wo.signcolumn = 'yes'
 
 -- Decrease update time
-vim.o.updatetime = 250
-vim.o.timeoutlen = 300
+vim.opt.updatetime = 250
+vim.opt.timeoutlen = 300
 
 -- Set completeopt to have a better completion experience
-vim.o.completeopt = 'menuone,noselect'
+vim.opt.completeopt = 'menuone,noselect'
 
 -- NOTE: You should make sure your terminal supports this
-vim.o.termguicolors = true
+vim.opt.termguicolors = true
 
 -- [[ Basic Keymaps ]]
 
@@ -579,7 +549,10 @@ require('telescope').setup({
     },
 
     file_ignore_patterns = {
-      "^node_modules"
+      "^node_modules",
+      "^var$",
+      "^vendor$",
+      "^.cache$",
     },
   },
 });
@@ -725,7 +698,7 @@ mason_lspconfig.setup_handlers {
 }
 
 require('lspconfig').volar.setup({
-  filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
+  filetypes = { 'vue' },
   init_options = {
     vue = {
       hybridMode = false,
