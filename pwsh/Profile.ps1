@@ -42,6 +42,7 @@ Set-Alias -Name vi -Value vim
 Set-Alias -Name touch -Value New-Item
 Set-Alias -Name g -Value git
 Set-Alias -Name spl -Value Split-Path
+Set-Alias -Name bye -Value exit
 
 
 function DisplayColors {
