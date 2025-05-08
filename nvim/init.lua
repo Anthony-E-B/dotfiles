@@ -354,7 +354,7 @@ require('lazy').setup({
   {
     "nvim-neorg/neorg",
     config = function()
-      require("neorg").setup {
+      require('neorg').setup {
         load = {
           ["core.defaults"] = {}, -- Loads default behaviour
           ["core.concealer"] = {}, -- Adds pretty icons to your documents
@@ -364,7 +364,18 @@ require('lazy').setup({
             },
           }, -- Completion
           ["core.dirman"] = DIRMAN_CONFIG,
-          ['core.summary'] = {}
+          ['core.summary'] = {},
+          ['core.export'] = {},
+          ['core.esupports.metagen'] = {
+            config = {
+              update_date = false,
+            },
+          },
+          ['external.live-pdf'] = {
+            config = {
+              server_port = 8025,
+            },
+          }
         },
       }
     end,
@@ -372,6 +383,9 @@ require('lazy').setup({
       { '<leader>ni', '<Cmd>Neorg index<CR>', desc = "[N]eorg [I]index" },
       { '<leader>nw', ':Neorg workspace ', desc = "[N]eorg [W]orkspace..." },
       { '<leader>nj', '<Cmd>Neorg journal<CR>', desc = "[N]eorg [J]ournal" },
+    },
+    dependencies = {
+      { dir = 'D:/source/neorg_live_pdf' },
     },
     cmd = "Neorg"
   },
@@ -696,17 +710,6 @@ local mason_lspconfig = require 'mason-lspconfig'
 
 mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
-}
-
-mason_lspconfig.setup_handlers {
-  function(server_name)
-    require('lspconfig')[server_name].setup {
-      capabilities = capabilities,
-      on_attach = on_attach,
-      settings = servers[server_name],
-      filetypes = (servers[server_name] or {}).filetypes,
-    }
-  end
 }
 
 require('lspconfig').volar.setup({
