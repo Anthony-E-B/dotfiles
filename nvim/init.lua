@@ -8,8 +8,8 @@ pcall(require, 'local');
 local searchDebounceDelay = 100 -- Debounce delay for searches with telescope (ms)
 
 -- Themes used for <leader>thl and <leader>thd keymaps
-DarkThemeName = 'github_dark_default' -- Default dark theme
-LightThemeName = 'github_light' -- Default light theme
+DarkThemeName = 'oxocarbon' -- Default dark theme
+LightThemeName = 'tokyonight-day' -- Default light theme
 
 ----------------------------------------
 
@@ -53,8 +53,8 @@ vim.o.sessionoptions="blank,buffers,curdir,folds,help,tabpages,winsize,winpos,te
 function LoadNeorgWorkspace(workspace)
   vim.cmd('Neorg workspace ' .. workspace)
   vim.cmd('Neorg index')
-  DarkThemeName = 'catppuccin-mocha';
-  LightThemeName = 'catppuccin-latte'
+  DarkThemeName = 'tokyonight-night';
+  LightThemeName = 'tokyonight-day'
   vim.cmd.colorscheme(DarkThemeName)
 end
 
@@ -243,7 +243,10 @@ require('lazy').setup({
       },
 
       -- Additional lua configuration, makes nvim stuff amazing!
-      'folke/neodev.nvim',
+      {
+        'folke/lazydev.nvim',
+        ft = "lua",
+      },
     },
     config = function ()
       vim.lsp.set_log_level("warn")
@@ -292,21 +295,20 @@ require('lazy').setup({
 
   -- Theme
   {
-    'projekt0n/github-nvim-theme',
-    config = function()
-      vim.cmd.colorscheme('github_dark_default')
-    end,
+    'tokyonight.nvim',
     lazy = false,
   },
   {
-    "catppuccin/nvim",
-    name = "catppuccin",
-    config = function ()
-      -- vim.cmd.colorscheme "catppuccin-frappe"
-      -- vim.cmd.colorscheme "catppuccin-macchiato" -- darker variant
-      -- vim.cmd.colorscheme "catppuccin-mocha" -- darker variant
+    'nyoom-engineering/oxocarbon.nvim',
+    lazy = false,
+    config = function()
+      vim.cmd.colorscheme('oxocarbon')
     end,
-    lazy = false
+  },
+  {
+    'rebelot/kanagawa.nvim',
+    lazy = false,
+    priority = 1000,
   },
 
   {
@@ -489,7 +491,7 @@ require('lazy').setup({
         require("flutter-tools").setup {} -- use defaults
       end,
       event = "VeryLazy",
-  }
+  },
 }, {
     defaults = {
       lazy = true,
@@ -498,7 +500,7 @@ require('lazy').setup({
 
 -- vim.keymap.set('n', '<leader>ssf', '<Cmd>syntax sync fromstart<CR>', { desc = "[S]yntax [S]ync [F]romstart"});
 vim.keymap.set('n', '<leader>sthl', '<Cmd>lua vim.cmd.colorscheme(LightThemeName)<CR>', { desc = "[S]witch [T]heme : [L]ight"});
-vim.keymap.set('n', '<leader>sthd', '<Cmd>lua vim.cmd.colorscheme(DarkThemeName)<CR>', { desc = "[S]witch [T]heme : [D]ark"});
+vim.keymap.set('n', '<leader>sthd', '<Cmd>lua vim.opt.background="dark";vim.cmd.colorscheme(DarkThemeName)<CR>', { desc = "[S]witch [T]heme : [D]ark"});
 
 -- [[ Setting options ]]
 
@@ -699,9 +701,6 @@ local servers = {
     },
   },
 }
-
--- Setup neovim lua configuration
-require('neodev').setup()
 
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
