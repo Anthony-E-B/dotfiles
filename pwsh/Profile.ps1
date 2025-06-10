@@ -1,6 +1,6 @@
 function lisa() {Get-ChildItem && Get-ChildItem -Hidden -System}
-Set-Alias -Name ll -Value lsa
-Set-Alias -Name l -Value lsa
+Set-Alias -Name ll -Value lisa
+Set-Alias -Name l -Value lisa
 
 function CopyPath {
 	Set-Clipboard ("'" + (Get-Location).Path + "'")
