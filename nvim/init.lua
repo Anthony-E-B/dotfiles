@@ -81,6 +81,24 @@ require('lazy').setup({
   },
 
   {
+    'R-nvim/R.nvim',
+    ft = 'R',
+    config = function()
+      require('r').setup({
+        hook = {
+          on_filetype = function()
+            vim.api.nvim_buf_set_keymap(0, 'n', '<Enter>', '<Plug>RDSendLine', {})
+            vim.api.nvim_buf_set_keymap(0, 'v', '<Enter>', '<Plug>RSendSelection', {})
+          end,
+        },
+        R_args = { '--quiet', '--no-save' },
+        min_editor_width = 72,
+        rconsole_width = 78,
+      })
+    end,
+  },
+
+  {
     "rcarriga/nvim-notify",
     config = function ()
       vim.notify = require('notify') -- Override vim.notify
@@ -230,6 +248,7 @@ require('lazy').setup({
       -- Automatically install LSPs to stdpath for neovim
       { 'mason-org/mason.nvim', opts = {} },
       'mason-org/mason-lspconfig.nvim',
+      'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP
       {
@@ -285,6 +304,7 @@ require('lazy').setup({
         end,
       })
 
+      local vue_typescript_plugin_path = vim.fn.stdpath('data') .. '/mason/packages/vue-language-server/node_modules/@vue/language-server/node_modules/@vue/typescript-plugin'
       local servers = {
         lua_ls = {
           settings = {
@@ -296,7 +316,20 @@ require('lazy').setup({
             },
           },
         },
-        volar = {
+        ts_ls = {
+          filetypes = { 'javascript', 'typescript', 'vue' },
+          init_options = {
+            plugins = {
+              {
+                name = '@vue/typescript-plugin',
+                -- location = vim.fn.stdpath('data') .. '/mason/packages/vue-language-server/node_modules/@vue/language-server',
+                location = vue_typescript_plugin_path,
+                languages = { 'typescript', 'vue' },
+              },
+            },
+          },
+        },
+        vue_ls = {
           filetypes = { 'vue' },
           init_options = {
             typescript = {
@@ -309,21 +342,26 @@ require('lazy').setup({
         },
       }
 
+
+      local ensure_installed = vim.tbl_keys(servers or {})
+      require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
+      -- setup config for each defined server with the new api vim.lsp.config()
+      for server_name, server in pairs(servers) do
+        -- This handles overriding only values explicitly passed
+        -- by the server configuration above. Useful when disabling
+        -- certain features of an LSP (for example, turning off formatting for ts_ls)
+        server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+        vim.lsp.config[server_name] = server
+      end
+
+      require('mason').setup()
       require('mason-lspconfig').setup {
-        automatic_installation = false,
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-            -- This handles overriding only values explicitly passed
-            -- by the server configuration above. Useful when disabling
-            -- certain features of an LSP (for example, turning off formatting for ts_ls)
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
-          end,
-        },
+        ensure_installed = {}, -- already handled by mason-tool-installer
+        automatic_enable = true,
       }
     end,
     lazy = false,
@@ -371,7 +409,7 @@ require('lazy').setup({
 
   -- Theme
   {
-    'tokyonight.nvim',
+    'folke/tokyonight.nvim',
     lazy = false,
   },
   {
@@ -380,11 +418,6 @@ require('lazy').setup({
     config = function()
       vim.cmd.colorscheme('oxocarbon')
     end,
-  },
-  {
-    'rebelot/kanagawa.nvim',
-    lazy = false,
-    priority = 1000,
   },
 
   {
@@ -467,7 +500,7 @@ require('lazy').setup({
       { '<leader>nj', '<Cmd>Neorg journal<CR>', desc = "[N]eorg [J]ournal" },
     },
     dependencies = {
-      { dir = 'D:/source/neorg_live_pdf' },
+      -- { dir = 'D:/source/neorg_live_pdf' },
     },
     cmd = "Neorg"
   },
