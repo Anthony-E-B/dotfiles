@@ -50,6 +50,35 @@ vim.o.cursorcolumn = true;
 
 vim.o.sessionoptions="blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
+if vim.g.neovide then
+  vim.o.guifont = "CaskaydiaCove NFM:h12"
+  vim.g.neovide_title_background_color = string.format(
+      "%x",
+      vim.api.nvim_get_hl(0, {id=vim.api.nvim_get_hl_id_by_name("Normal")}).bg
+  )
+  vim.g.neovide_title_text_color = "white"
+  vim.opt.linespace = 0
+  vim.g.neovide_scroll_animation_length = 0.15
+  vim.g.neovide_hide_mouse_when_typing = true
+
+  vim.g.neovide_no_idle = false
+  vim.g.neovide_refresh_rate = 50
+  vim.g.neovide_refresh_rate_idle = 0 -- 1FPS when idle
+  vim.g.neovide_confirm_quit = false
+  vim.g.neovide_remember_window_size = true
+
+  vim.g.neovide_position_animation_length = 0.05
+
+  vim.g.neovide_profiler = false
+
+  vim.g.neovide_cursor_animation_length = 0.1
+  vim.g.neovide_cursor_short_animation_length = 0.04
+  vim.g.neovide_cursor_trail_size = 0.7
+  vim.g.neovide_cursor_animate_in_insert_mode = true
+
+  vim.g.neovide_cursor_unfocused_outline_width = 0.125
+end
+
 function LoadNeorgWorkspace(workspace)
   vim.cmd('Neorg workspace ' .. workspace)
   vim.cmd('Neorg index')
