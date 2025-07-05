@@ -346,7 +346,7 @@ require('lazy').setup({
           },
         },
         ts_ls = {
-          filetypes = { 'javascript', 'typescript', 'vue' },
+          filetypes = { 'javascript', 'typescript', 'vue', 'javascriptreact', 'typescriptreact' },
           init_options = {
             plugins = {
               {
