@@ -13,8 +13,7 @@ LightThemeName = 'tokyonight-day' -- Default light theme
 
 ----------------------------------------
 
-
-
+-- [[ Setting options ]]
 
 -- Set <space> as the leader key
 -- See `:help mapleader`
@@ -50,6 +49,47 @@ vim.o.cursorcolumn = true;
 
 vim.o.sessionoptions="blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
+-- Set highlight on search
+vim.o.hlsearch = false
+
+-- Make line numbers default
+vim.wo.number = true
+vim.wo.relativenumber = true
+
+-- Enable mouse mode
+vim.o.mouse = 'a'
+
+vim.o.fileformat = "unix"
+
+-- Sync clipboard between OS and Neovim.
+--  Remove this option if you want your OS clipboard to remain independent.
+--  See `:help 'clipboard'`
+vim.o.clipboard = 'unnamedplus'
+
+-- Enable break indent
+vim.o.breakindent = true
+
+-- Save undo history
+vim.o.undofile = true
+
+-- Case-insensitive searching UNLESS \C or capital in search
+vim.o.ignorecase = true
+vim.o.smartcase = true
+
+-- Keep signcolumn on by default
+vim.wo.signcolumn = 'yes'
+
+-- Decrease update time
+vim.o.updatetime = 750
+vim.o.timeoutlen = 300
+
+-- Set completeopt to have a better completion experience
+vim.o.completeopt = 'menuone,noselect'
+
+-- NOTE: You should make sure your terminal supports this
+vim.o.termguicolors = true
+
+
 if vim.g.neovide then
   vim.o.guifont = "CaskaydiaCove NFM:h12"
   vim.g.neovide_title_background_color = string.format(
@@ -71,10 +111,12 @@ if vim.g.neovide then
 
   vim.g.neovide_profiler = false
 
-  vim.g.neovide_cursor_animation_length = 0.1
-  vim.g.neovide_cursor_short_animation_length = 0.04
-  vim.g.neovide_cursor_trail_size = 0.7
-  vim.g.neovide_cursor_animate_in_insert_mode = true
+  -- vim.g.neovide_cursor_animation_length = 0.1
+  -- vim.g.neovide_cursor_short_animation_length = 0.04
+  vim.g.neovide_cursor_animation_length = 0
+  vim.g.neovide_cursor_short_animation_length = 0
+  vim.g.neovide_cursor_trail_size = 0
+  vim.g.neovide_cursor_animate_in_insert_mode = false
 
   vim.g.neovide_cursor_unfocused_outline_width = 0.125
 end
@@ -87,6 +129,7 @@ function LoadNeorgWorkspace(workspace)
   vim.cmd.colorscheme(DarkThemeName)
 end
 
+-- Ouverture de fichiers binaires en mode xxd
 vim.cmd([[
   augroup BinaryFileAutoCommand
     autocmd!
@@ -103,30 +146,77 @@ vim.cmd([[
 --
 
 require('lazy').setup({
+  -- Language-related
   {
-    "vhyrro/luarocks.nvim",
-    priority = 1000,
-    config = true, -- This automatically runs `require("luarocks-nvim").setup()`
+    'nelsyeung/twig.vim',
+    event = "VeryLazy"
   },
 
   {
-    'R-nvim/R.nvim',
-    ft = 'R',
+    'akinsho/flutter-tools.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    opts = {},
+    ft = "dart",
+  },
+
+  -- Themes
+  {
+    'folke/tokyonight.nvim',
+    lazy = false,
+  },
+
+  {
+    'nyoom-engineering/oxocarbon.nvim',
+    lazy = false,
     config = function()
-      require('r').setup({
-        hook = {
-          on_filetype = function()
-            vim.api.nvim_buf_set_keymap(0, 'n', '<Enter>', '<Plug>RDSendLine', {})
-            vim.api.nvim_buf_set_keymap(0, 'v', '<Enter>', '<Plug>RSendSelection', {})
-          end,
-        },
-        R_args = { '--quiet', '--no-save' },
-        min_editor_width = 72,
-        rconsole_width = 78,
-      })
+      vim.cmd.colorscheme('oxocarbon')
     end,
   },
 
+  -- Git related plugins
+  {
+    'tpope/vim-fugitive',
+    event = "VeryLazy"
+  },
+
+  {
+    -- (Adds git related signs to the gutter, as well as utilities for managing changes)
+    'lewis6991/gitsigns.nvim',
+    opts = {
+      -- See `:help gitsigns.txt`
+      signs = {
+        add = { text = '+' },
+        change = { text = '~' },
+        delete = { text = '_' },
+        topdelete = { text = '‾' },
+        changedelete = { text = '~' },
+      },
+      on_attach = function(bufnr)
+        vim.keymap.set('n', '<leader>gp', require('gitsigns').prev_hunk, { buffer = bufnr, desc = '[G]o to [P]revious Hunk' })
+        vim.keymap.set('n', '<leader>gn', require('gitsigns').next_hunk, { buffer = bufnr, desc = '[G]o to [N]ext Hunk' })
+        vim.keymap.set('n', '<leader>ph', require('gitsigns').preview_hunk, { buffer = bufnr, desc = '[P]review [H]unk' })
+      end,
+    },
+    event = "VeryLazy",
+  },
+
+  -- Other plugins 
+  {
+    -- Set lualine as statusline
+    'nvim-lualine/lualine.nvim',
+    -- See `:help lualine.txt`
+    opts = {
+      options = {
+        icons_enabled = false,
+        theme = 'auto',
+        component_separators = '|',
+        section_separators = '',
+      },
+    },
+    event = "VeryLazy"
+  },
   {
     "rcarriga/nvim-notify",
     config = function ()
@@ -154,12 +244,6 @@ require('lazy').setup({
     opts = {}
   },
 
-  -- Git related plugins
-  {
-    'tpope/vim-fugitive',
-    event = "VeryLazy"
-  },
-
   -- Detect tabstop and shiftwidth automatically
   {
     'tpope/vim-sleuth',
@@ -168,11 +252,6 @@ require('lazy').setup({
 
   {
     'tpope/vim-surround',
-    event = "VeryLazy"
-  },
-
-  {
-    'nelsyeung/twig.vim',
     event = "VeryLazy"
   },
 
@@ -196,11 +275,6 @@ require('lazy').setup({
     end
   },
 
-  --[[ {
-    'lervag/vimtex',
-    lazy = false, -- NOTE: Specific requirements of Vimtex
-  }, ]]
-
   {
     'nvim-tree/nvim-tree.lua',
     dependencies = {
@@ -211,7 +285,6 @@ require('lazy').setup({
       { '<leader>ft', '<Cmd>NvimTreeToggle<CR>', desc = "[F]ile Explorer [T]oggle" },
       { '<leader>ff', '<Cmd>NvimTreeFindFile<CR>', desc = "[F]ind [F]ile" },
       { '<leader>fc', '<Cmd>NvimTreeClose<CR>', desc = "[F]ile Explorer [C]lose" },
-      { '<leader>fr', '<Cmd>NvimTreeRefresh<CR>', desc = "[F]ile Explorer [R]efresh" },
     },
     config = function (self, opts)
       require('nvim-tree').setup({
@@ -237,7 +310,7 @@ require('lazy').setup({
         },
         renderer = {
           group_empty = true,
-          special_files = { 'Cargo.toml', 'Makefile', 'README.md', 'readme.md', '.gitignore', '.gitconfig', 'package.json', 'package-lock.json' },
+          special_files = { 'Cargo.toml', 'Makefile', 'README.md', 'readme.md', '.gitignore', '.gitconfig', 'package.json', 'package-lock.json', 'go.mod' },
           hidden_display = "all",
         },
         filters = {
@@ -264,7 +337,6 @@ require('lazy').setup({
         git_use_branch_name = true,
         log_level = "error",
       });
-      vim.g.auto_session_pre_save_cmds = { "silent! tabdo NvimTreeClose" }
     end,
     lazy = false,
   },
@@ -341,7 +413,10 @@ require('lazy').setup({
               completion = {
                 callSnippet = 'Replace',
               },
-              diagnostics = { disable = { 'missing-fields' } },
+              diagnostics = {
+                disable = { 'missing-fields' },
+                globals = { 'vim' }
+              },
             },
           },
         },
@@ -351,7 +426,6 @@ require('lazy').setup({
             plugins = {
               {
                 name = '@vue/typescript-plugin',
-                -- location = vim.fn.stdpath('data') .. '/mason/packages/vue-language-server/node_modules/@vue/language-server',
                 location = vue_typescript_plugin_path,
                 languages = { 'typescript', 'vue' },
               },
@@ -415,57 +489,8 @@ require('lazy').setup({
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim', opts = {}, event = "VeryLazy" },
 
-  {
-    -- Adds git related signs to the gutter, as well as utilities for managing changes
-    'lewis6991/gitsigns.nvim',
-    opts = {
-      -- See `:help gitsigns.txt`
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-      on_attach = function(bufnr)
-        vim.keymap.set('n', '<leader>gp', require('gitsigns').prev_hunk, { buffer = bufnr, desc = '[G]o to [P]revious Hunk' })
-        vim.keymap.set('n', '<leader>gn', require('gitsigns').next_hunk, { buffer = bufnr, desc = '[G]o to [N]ext Hunk' })
-        vim.keymap.set('n', '<leader>ph', require('gitsigns').preview_hunk, { buffer = bufnr, desc = '[P]review [H]unk' })
-      end,
-    },
-    event = "VeryLazy",
-  },
-
-  -- Theme
-  {
-    'folke/tokyonight.nvim',
-    lazy = false,
-  },
-  {
-    'nyoom-engineering/oxocarbon.nvim',
-    lazy = false,
-    config = function()
-      vim.cmd.colorscheme('oxocarbon')
-    end,
-  },
-
-  {
-    -- Set lualine as statusline
-    'nvim-lualine/lualine.nvim',
-    -- See `:help lualine.txt`
-    opts = {
-      options = {
-        icons_enabled = false,
-        theme = 'auto',
-        component_separators = '|',
-        section_separators = '',
-      },
-    },
-    event = "VeryLazy"
-  },
-
-
   'NMAC427/guess-indent.nvim',
+
   {
     -- Add indentation guides even on blank lines
     'lukas-reineke/indent-blankline.nvim',
@@ -496,9 +521,16 @@ require('lazy').setup({
   { 'numToStr/Comment.nvim', opts = {}, lazy = false },
 
   {
+    "vhyrro/luarocks.nvim",
+    priority = 1000, -- We'd like this plugin to load first out of the rest
+    config = true, -- This automatically runs `require("luarocks-nvim").setup()`
+  },
+  {
     "nvim-neorg/neorg",
+    dependencies = { "luarocks.nvim" },
     config = function()
-      require('neorg').setup {
+      require("nvim-treesitter.install").compilers = { "clang-cl" }
+      require("neorg").setup({
         load = {
           ["core.defaults"] = {}, -- Loads default behaviour
           ["core.concealer"] = {}, -- Adds pretty icons to your documents
@@ -515,36 +547,43 @@ require('lazy').setup({
               update_date = false,
             },
           },
-          ['external.live-pdf'] = {
-            config = {
-              server_port = 8025,
-            },
-          }
+          -- ['external.live-pdf'] = {
+          --   config = {
+          --     server_port = 8025,
+          --   },
+          -- }
         },
-      }
+      })
     end,
     keys = {
       { '<leader>ni', '<Cmd>Neorg index<CR>', desc = "[N]eorg [I]index" },
       { '<leader>nw', ':Neorg workspace ', desc = "[N]eorg [W]orkspace..." },
       { '<leader>nj', '<Cmd>Neorg journal<CR>', desc = "[N]eorg [J]ournal" },
     },
-    dependencies = {
-      -- { dir = 'D:/source/neorg_live_pdf' },
-    },
     cmd = "Neorg"
   },
-
 
   -- Fuzzy Finder (files, lsp, etc)
   {
     'nvim-telescope/telescope.nvim',
-    branch = '0.1.x',
+    tag = "v0.2.1",
     dependencies = {
       'nvim-lua/plenary.nvim',
     },
+    setup = {
+      extensions = {
+      },
+      defaults = {
+        file_ignore_patterns = {
+          "-lock.json$",
+          "^node_modules",
+          "^var$",
+          "^vendor$",
+          "^.cache$",
+        },
+      },
+    }
   },
-
-  -- Fuzzy Finder Algorithm which requires local dependencies to be built.
 
   {
     'nvim-treesitter/nvim-treesitter',
@@ -621,67 +660,19 @@ require('lazy').setup({
 
     end,
   },
-  {
-    'akinsho/flutter-tools.nvim',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-    },
-    opts = {},
-    ft = "dart",
-  },
 }, {
   defaults = {
     lazy = true,
   }
 })
 
--- vim.keymap.set('n', '<leader>ssf', '<Cmd>syntax sync fromstart<CR>', { desc = "[S]yntax [S]ync [F]romstart"});
 vim.keymap.set('n', '<leader>sthl', '<Cmd>lua vim.cmd.colorscheme(LightThemeName)<CR>', { desc = "[S]witch [T]heme : [L]ight"});
 vim.keymap.set('n', '<leader>sthd', '<Cmd>lua vim.opt.background="dark";vim.cmd.colorscheme(DarkThemeName)<CR>', { desc = "[S]witch [T]heme : [D]ark"});
 
--- [[ Setting options ]]
+-- [[ General Keymaps ]]
 
--- Set highlight on search
-vim.o.hlsearch = false
-
--- Make line numbers default
-vim.wo.number = true
-vim.wo.relativenumber = true
-
--- Enable mouse mode
-vim.o.mouse = 'a'
-
-vim.o.fileformat = "unix"
-
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
-vim.o.clipboard = 'unnamedplus'
-
--- Enable break indent
-vim.o.breakindent = true
-
--- Save undo history
-vim.o.undofile = true
-
--- Case-insensitive searching UNLESS \C or capital in search
-vim.o.ignorecase = true
-vim.o.smartcase = true
-
--- Keep signcolumn on by default
-vim.wo.signcolumn = 'yes'
-
--- Decrease update time
-vim.o.updatetime = 250
-vim.o.timeoutlen = 300
-
--- Set completeopt to have a better completion experience
-vim.o.completeopt = 'menuone,noselect'
-
--- NOTE: You should make sure your terminal supports this
-vim.o.termguicolors = true
-
--- [[ Basic Keymaps ]]
+-- Créer une nouvelle ligne au-dessus et l'éditer directement
+vim.keymap.set("i", "<C-j>", "<C-o>O", { noremap = true, silent = true })
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
@@ -691,43 +682,24 @@ vim.o.termguicolors = true
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
+
+
 -- [[ Highlight on yank ]]
+
 -- See `:help vim.highlight.on_yank()`
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
 vim.api.nvim_create_autocmd('TextYankPost', {
   callback = function()
-    vim.highlight.on_yank()
+    vim.hl.on_yank()
   end,
   group = highlight_group,
   pattern = '*',
 })
 
+
+
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
-require('telescope').setup({
-  extensions = {
-  },
-  defaults = {
-    mappings = {
-      i = {
-        ['<C-u>'] = false,
-        ['<C-d>'] = false,
-      },
-    },
-
-    file_ignore_patterns = {
-      "^node_modules",
-      "^var$",
-      "^vendor$",
-      "^.cache$",
-    },
-  },
-});
-
--- Enable telescope fzf native, if installed
---
--- pcall(require('telescope').load_extension, 'fzf')
-
 
 -- Use fzf to search files and respect .gitignore rules
 -- vim.env.FZF_DEFAULT_COMMAND = [=[rg --files --hidden --follow --glob "!.git/*" --glob "!.gitignore" 2>/dev/null || find * -path "*/\.*" -prune -o -type f -print -o -type l -print 2>/dev/null | sed s/^..//]=]
@@ -760,6 +732,8 @@ vim.keymap.set('n', '<leader>sw', debounceTelescope(require('telescope.builtin')
 vim.keymap.set('n', '<leader>sg', debounceTelescope(require('telescope.builtin').live_grep), { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sd', debounceTelescope(require('telescope.builtin').diagnostics), { desc = '[S]earch [D]iagnostics' })
 
+
+
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
 
@@ -774,11 +748,13 @@ vim.diagnostic.config({
   update_in_insert = false,
 });
 
+
+
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
 local cmp = require 'cmp'
 local luasnip = require 'luasnip'
-require('luasnip.loaders.from_vscode').lazy_load()
+-- require('luasnip.loaders.from_vscode').lazy_load()
 luasnip.config.setup {}
 
 cmp.setup {
