@@ -102,7 +102,7 @@ if vim.g.neovide then
   vim.g.neovide_hide_mouse_when_typing = true
 
   vim.g.neovide_no_idle = false
-  vim.g.neovide_refresh_rate = 50
+  vim.g.neovide_refresh_rate = NvideRefreshRate or 50
   vim.g.neovide_refresh_rate_idle = 0 -- 1FPS when idle
   vim.g.neovide_confirm_quit = false
   vim.g.neovide_remember_window_size = true
@@ -202,6 +202,55 @@ require('lazy').setup({
     event = "VeryLazy",
   },
 
+  -- AI
+  {
+    'zbirenbaum/copilot.lua',
+    keys = {
+      { '<leader>ce', '<Cmd>Copilot enable<CR>', desc = "[C]opilot [E]nable" },
+      { '<leader>cd', '<Cmd>Copilot disable<CR>', desc = "[C]opilot [D]isable" },
+    },
+    cmd = "Copilot",
+    config = function ()
+      require('copilot').setup({
+        suggestion = {
+          auto_trigger = true,
+          keymap = {
+            accept = "<C-K>",
+            dismiss = "<C-J>",
+          },
+        },
+      });
+    end
+  },
+  {
+    "CopilotC-Nvim/CopilotChat.nvim",
+    dependencies = {
+      { "nvim-lua/plenary.nvim", branch = "master" },
+    },
+    opts = {
+      model = 'gpt-4.1',
+      temperature = 0.1, -- Lower = focused, higher = creative
+      window = {
+        layout = 'vertical',
+        width = 0.3,
+      },
+      auto_insert_mode = true,
+      auto_fold = true, -- Automatically folds non-assistant messages
+    },
+    cmd = "CopilotChat",
+    config = function ()
+      -- Auto-command to customize chat buffer behavior
+      vim.api.nvim_create_autocmd('BufEnter', {
+        pattern = 'copilot-*',
+        callback = function()
+          vim.opt_local.relativenumber = false
+          vim.opt_local.number = false
+          vim.opt_local.conceallevel = 0
+        end,
+      })
+    end
+  },
+
   -- Other plugins 
   {
     -- Set lualine as statusline
@@ -253,26 +302,6 @@ require('lazy').setup({
   {
     'tpope/vim-surround',
     event = "VeryLazy"
-  },
-
-  {
-    'zbirenbaum/copilot.lua',
-    keys = {
-      { '<leader>ce', '<Cmd>Copilot enable<CR>', desc = "[C]opilot [E]nable" },
-      { '<leader>cd', '<Cmd>Copilot disable<CR>', desc = "[C]opilot [D]isable" },
-    },
-    cmd = "Copilot",
-    config = function ()
-      require('copilot').setup({
-        suggestion = {
-          auto_trigger = true,
-          keymap = {
-            accept = "<C-K>",
-            dismiss = "<C-J>",
-          },
-        },
-      });
-    end
   },
 
   {
@@ -348,7 +377,7 @@ require('lazy').setup({
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
       { 'mason-org/mason.nvim', opts = {} },
-      'mason-org/mason-lspconfig.nvim',
+      "mason-org/mason-lspconfig.nvim",
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP
@@ -359,7 +388,7 @@ require('lazy').setup({
             suppress_on_insert = true,
             ignore_done_already = true,
             display = {
-              render_limit = 3,
+              render_limit = 2,
               done_ttl = 0,
             }
           },
@@ -462,10 +491,6 @@ require('lazy').setup({
       end
 
       require('mason').setup()
-      require('mason-lspconfig').setup {
-        ensure_installed = {}, -- already handled by mason-tool-installer
-        automatic_enable = true,
-      }
     end,
     lazy = false,
   },
@@ -522,8 +547,8 @@ require('lazy').setup({
 
   {
     "vhyrro/luarocks.nvim",
-    priority = 1000, -- We'd like this plugin to load first out of the rest
-    config = true, -- This automatically runs `require("luarocks-nvim").setup()`
+    priority = 1000, -- Load first
+    config = true, -- Calls setup()
   },
   {
     "nvim-neorg/neorg",
@@ -587,78 +612,25 @@ require('lazy').setup({
 
   {
     'nvim-treesitter/nvim-treesitter',
-    dependencies = {
-      'nvim-treesitter/nvim-treesitter-textobjects',
-    },
+    branch = "main",
     build = ':TSUpdate',
-    event = "VeryLazy",
-    config = function ()
-      require('nvim-treesitter.configs').setup {
-        ensure_installed = { 'c', 'cpp', 'lua', 'python', 'typescript', 'javascript', 'vimdoc', 'vim', 'query' },
-        auto_install = false,
+    opts = {
+      highlight = { enable = true },
+      indent = { enable = true }
+    },
+    init = function ()
+      require('nvim-treesitter').install({ 'c', 'lua', 'python', 'typescript', 'javascript', 'vue', 'vimdoc', 'vim', 'php'  });
 
-        highlight = {
-          enable = true,
-        },
-        indent = {
-          enable = true,
-        },
-        incremental_selection = {
-          enable = true,
-          keymaps = {
-            init_selection = '<leader>ss',
-            node_incremental = '<leader>si',
-            scope_incremental = '<leader>sci',
-            node_decremental = '<leader>scd',
-          },
-        },
-        textobjects = {
-          select = {
-            enable = true,
-            lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-            keymaps = {
-              -- You can use the capture groups defined in textobjects.scm
-              ['aa'] = '@parameter.outer',
-              ['ia'] = '@parameter.inner',
-              ['af'] = '@function.outer',
-              ['if'] = '@function.inner',
-              ['ac'] = '@class.outer',
-              ['ic'] = '@class.inner',
-            },
-          },
-          move = {
-            enable = true,
-            set_jumps = true, -- whether to set jumps in the jumplist
-            goto_next_start = {
-              [']m'] = '@function.outer',
-              [']]'] = '@class.outer',
-            },
-            goto_next_end = {
-              [']M'] = '@function.outer',
-              [']['] = '@class.outer',
-            },
-            goto_previous_start = {
-              ['[m'] = '@function.outer',
-              ['[['] = '@class.outer',
-            },
-            goto_previous_end = {
-              ['[M'] = '@function.outer',
-              ['[]'] = '@class.outer',
-            },
-          },
-          swap = {
-            enable = true,
-            swap_next = {
-              ['<leader>a'] = '@parameter.inner',
-            },
-            swap_previous = {
-              ['<leader>A'] = '@parameter.inner',
-            },
-          },
-        },
-      }
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = { '<filetype>' },
+        callback = function()
+          vim.treesitter.start()
+        end,
+      })
 
+      vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
     end,
+    lazy = false,
   },
 }, {
   defaults = {
