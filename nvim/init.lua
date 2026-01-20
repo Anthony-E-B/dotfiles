@@ -8,7 +8,7 @@ pcall(require, 'local');
 local searchDebounceDelay = 100 -- Debounce delay for searches with telescope (ms)
 
 -- Themes used for <leader>thl and <leader>thd keymaps
-DarkThemeName = 'oxocarbon' -- Default dark theme
+DarkThemeName = 'kanagawa-wave' -- Default dark theme
 LightThemeName = 'tokyonight-day' -- Default light theme
 
 ----------------------------------------
@@ -169,9 +169,14 @@ require('lazy').setup({
 
   {
     'nyoom-engineering/oxocarbon.nvim',
+    event = "VeryLazy",
+  },
+
+  {
+    'rebelot/kanagawa.nvim',
     lazy = false,
     config = function()
-      vim.cmd.colorscheme('oxocarbon')
+      vim.cmd.colorscheme('kanagawa-wave')
     end,
   },
 
@@ -374,11 +379,11 @@ require('lazy').setup({
   --  The configuration is done below. Search for lspconfig to find it below.
   {
     'neovim/nvim-lspconfig',
+    lazy = false,
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
       { 'mason-org/mason.nvim', opts = {} },
-      "mason-org/mason-lspconfig.nvim",
-      'WhoIsSethDaniel/mason-tool-installer.nvim',
+      { 'mason-org/mason-lspconfig.nvim', opts = { } },
 
       -- Useful status updates for LSP
       {
@@ -434,65 +439,11 @@ require('lazy').setup({
         end,
       })
 
-      local vue_typescript_plugin_path = vim.fn.stdpath('data') .. '/mason/packages/vue-language-server/node_modules/@vue/language-server/node_modules/@vue/typescript-plugin'
-      local servers = {
-        lua_ls = {
-          settings = {
-            Lua = {
-              completion = {
-                callSnippet = 'Replace',
-              },
-              diagnostics = {
-                disable = { 'missing-fields' },
-                globals = { 'vim' }
-              },
-            },
-          },
-        },
-        ts_ls = {
-          filetypes = { 'javascript', 'typescript', 'vue', 'javascriptreact', 'typescriptreact' },
-          init_options = {
-            plugins = {
-              {
-                name = '@vue/typescript-plugin',
-                location = vue_typescript_plugin_path,
-                languages = { 'typescript', 'vue' },
-              },
-            },
-          },
-        },
-        vue_ls = {
-          filetypes = { 'vue' },
-          init_options = {
-            typescript = {
-              tsdk = vim.fn.stdpath('data') .. '/mason/packages/typescript-language-server/node_modules/typescript/lib'
-            },
-            vue = {
-              hybridMode = false,
-            },
-          },
-        },
-      }
-
-
-      local ensure_installed = vim.tbl_keys(servers or {})
-      require('mason-tool-installer').setup { ensure_installed = ensure_installed }
-
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
-      -- setup config for each defined server with the new api vim.lsp.config()
-      for server_name, server in pairs(servers) do
-        -- This handles overriding only values explicitly passed
-        -- by the server configuration above. Useful when disabling
-        -- certain features of an LSP (for example, turning off formatting for ts_ls)
-        server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-        vim.lsp.config[server_name] = server
-      end
-
       require('mason').setup()
     end,
-    lazy = false,
   },
 
   {
@@ -616,11 +567,11 @@ require('lazy').setup({
     build = ':TSUpdate',
     opts = {
       highlight = { enable = true },
-      indent = { enable = true }
+      indent = { enable = true },
+      folds = { enable = true },
+      ensure_installed = { 'c', 'lua', 'python', 'typescript', 'javascript', 'vue', 'vimdoc', 'vim', 'php', 'go'  }
     },
     init = function ()
-      require('nvim-treesitter').install({ 'c', 'lua', 'python', 'typescript', 'javascript', 'vue', 'vimdoc', 'vim', 'php'  });
-
       vim.api.nvim_create_autocmd('FileType', {
         pattern = { '<filetype>' },
         callback = function()
