@@ -253,10 +253,29 @@ require('lazy').setup({
           vim.opt_local.conceallevel = 0
         end,
       })
+
+      require('render-markdown').setup({
+        file_types = { 'markdown', 'copilot-chat' },
+      })
+
+      -- Adjust chat display settings
+      require('CopilotChat').setup({
+        highlight_headers = false,
+        separator = '---',
+        error_header = '> [!ERROR] Error',
+      })
     end
   },
 
   -- Other plugins 
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
+    ---@module 'render-markdown'
+    ---@type render.md.UserConfig
+    opts = {},
+    cmd = "RenderMarkdown"
+  },
   {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
@@ -442,6 +461,26 @@ require('lazy').setup({
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
+
+      vim.lsp.config('vtsls', {
+        filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
+        settings = {
+          vtsls = {
+            tsserver = {
+              globalPlugins = {
+                {
+                  name = "@vue/typescript-plugin",
+                  location = vim.fn.stdpath("data") .. "/mason/packages/vue-language-server/node_modules/@vue/typescript-plugin",
+                  languages = { "vue" },
+                  configNamespace = "typescript",
+                  enableForWorkspaceTypeScriptVersions = true,
+                },
+              },
+            },
+          },
+        },
+      })
+
       require('mason').setup()
     end,
   },
@@ -504,8 +543,17 @@ require('lazy').setup({
   {
     "nvim-neorg/neorg",
     dependencies = { "luarocks.nvim" },
+    version = false,
     config = function()
-      require("nvim-treesitter.install").compilers = { "clang-cl" }
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "norg", "neorg" },
+        callback = function()
+          if pcall(vim.treesitter.start) then
+            vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+            vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
       require("neorg").setup({
         load = {
           ["core.defaults"] = {}, -- Loads default behaviour
@@ -536,7 +584,8 @@ require('lazy').setup({
       { '<leader>nw', ':Neorg workspace ', desc = "[N]eorg [W]orkspace..." },
       { '<leader>nj', '<Cmd>Neorg journal<CR>', desc = "[N]eorg [J]ournal" },
     },
-    cmd = "Neorg"
+    cmd = "Neorg",
+    ft = { "norg" },
   },
 
   -- Fuzzy Finder (files, lsp, etc)
