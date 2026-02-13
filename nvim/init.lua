@@ -339,45 +339,76 @@ require('lazy').setup({
       { '<leader>ff', '<Cmd>NvimTreeFindFile<CR>', desc = "[F]ind [F]ile" },
       { '<leader>fc', '<Cmd>NvimTreeClose<CR>', desc = "[F]ile Explorer [C]lose" },
     },
+    cmd = "NvimTree",
     config = function (self, opts)
       require('nvim-tree').setup({
         actions = {
           open_file = {
             quit_on_open = true,
           },
+          expand_all = {
+            exclude = { ".git", "node_modules", "build", "vendor" }
+          }
         },
-        sort_by="case_sensitive",
-        trash = {
-          cmd = "Remove-ItemSafely "
-        },
-        view = {
-          width = {
-            min = 30,
-            max = 40,
-            padding = 1,
-          },
-          signcolumn = "auto",
-        },
-        modified = {
-          enable = true,
-        },
-        renderer = {
-          group_empty = true,
-          special_files = { 'Cargo.toml', 'Makefile', 'README.md', 'readme.md', '.gitignore', '.gitconfig', 'package.json', 'package-lock.json', 'go.mod' },
-          hidden_display = "all",
+        filesystem_watchers = {
+          ignore_dirs = { ".git", "**/node_modules", "**/.cache", "**/vendor", "**/var" },
+          debounce_delay = 75,
         },
         filters = {
           git_ignored = false,
         },
-        filesystem_watchers = {
-          ignore_dirs = { ".git", "node_modules", ".cache", "vendor", "var" },
+        git = {
+          enable = false,
+          timeout = 50,
         },
         live_filter = {
           always_show_folders = false,
         },
-        git = {
-          enable = false,
-          -- timeout = 500,
+        modified = {
+          enable = true,
+        },
+        reload_on_bufenter = true,
+        renderer = {
+          add_trailing = true,
+          icons = {
+            show = {
+              folder = false,
+            },
+          },
+          indent_width = 1,
+          indent_markers = {
+            enable = true,
+          },
+          highlight_opened_files = "name",
+          hidden_display = "all",
+          group_empty = true,
+          special_files = { 'Cargo.toml', 'Makefile', 'README.md', 'readme.md', '.gitignore', '.gitconfig', 'package.json', 'package-lock.json', 'go.mod' },
+        },
+        sort_by = "case_sensitive",
+        view = {
+          float = {
+            enable = true,
+            open_win_config = function ()
+              local multiple_tabs = vim.fn.tabpagenr("$") > 1
+              return {
+                relative = "editor",
+                border = "rounded",
+                width = 40,
+                height = math.max(
+                  0,
+                  vim.api.nvim_get_option("lines") - (multiple_tabs and 5 or 4)
+                ),
+                row = multiple_tabs and 1 or 0,
+                col = 0
+              }
+            end
+          },
+          width = {
+            min = 30,
+            max = 60,
+            padding = 1,
+          },
+          signcolumn = "auto",
         },
       });
     end
