@@ -11,6 +11,46 @@ local searchDebounceDelay = 100 -- Debounce delay for searches with telescope (m
 DarkThemeName = 'kanagawa-wave' -- Default dark theme
 LightThemeName = 'tokyonight-day' -- Default light theme
 
+Languages = {
+  'c',
+  'css',
+  'csv',
+  'go',
+  'html',
+  'javascript',
+  'jsdoc',
+  'json',
+  'lua',
+  'markdown',
+  'php',
+  'phpdoc',
+  'python',
+  'scss',
+  'twig',
+  'typescript',
+  'vim',
+  'vimdoc',
+  'vue',
+  'yaml',
+}
+
+-- { "ada", "agda", "angular", "apex", "arduino", "asm", "astro", "authzed", "awk", "bash", "bass", "beancount", "bibtex", "bicep", "bitbake", "blade", "bp", "bpftrace", "brightscript", "c", "c3", "c_sha
+-- rp", "cairo", "capnp", "chatito", "circom", "clojure", "cmake", "comment", "commonlisp", "cooklang", "corn", "cpon", "cpp", "css", "csv", "cuda", "cue", "cylc", "d", "dart", "desktop", "devicetree", "
+-- dhall", "diff", "disassembly", "djot", "dockerfile", "dot", "doxygen", "dtd", "earthfile", "ebnf", "ecma", "editorconfig", "eds", "eex", "elixir", "elm", "elsa", "elvish", "embedded_template", "enforc
+-- e", "erlang", "facility", "faust", "fennel", "fidl", "firrtl", "fish", "foam", "forth", "fortran", "fsh", "fsharp", "func", "gap", "gaptst", "gdshader", "git_config", "git_rebase", "gitattributes", "g
+-- itcommit", "gitignore", "gleam", "glimmer", "glimmer_javascript", "glimmer_typescript", "glsl", "gn", "gnuplot", "go", "goctl", "godot_resource", "gomod", "gosum", "gotmpl", "gowork", "gpg", "graphql"
+-- , "gren", "groovy", "groq", "gstlaunch", "hack", "hare", "haskell", "haskell_persistent", "hcl", "heex", "helm", "hjson", "hlsl", "hlsplaylist", "hocon", "hoon", "html", "html_tags", "htmldjango", "ht
+-- tp", "hurl", "hyprlang", "idl", "idris", "ini", "ispc", "janet_simple", "java", "javadoc", "javascript", "jinja", "jinja_inline", "jq", "jsdoc", "json", "json5", "jsonnet", "jsx", "julia", "just", "kc
+-- l", "kconfig", "kdl", "kitty", "kos", "kotlin", "koto", "kusto", "lalrpop", "latex", "ledger", "leo", "linkerscript", "liquid", "liquidsoap", "llvm", "lua", "luadoc", "luap", "luau", "m68k", "make", "
+-- markdown", "markdown_inline", "matlab", "menhir", "mermaid", "meson", "mlir", "muttrc", "nasm", "nginx", "nickel", "nim", "nim_format_string", "ninja", "nix", "nqc", "nu", "objc", "objdump", "ocaml",
+-- "ocaml_interface", "ocamllex", "odin", "pascal", "passwd", "pem", "perl", "php", "php_only", "phpdoc", "pioasm", "pkl", "po", "pod", "poe_filter", "pony", "powershell", "printf", "prisma", "problog",
+-- "prolog", "promql", "properties", "proto", "prql", "psv", "pug", "puppet", "purescript", "pymanifest", "ql", "qmldir", "qmljs", "query", "r", "racket", "ralph", "rasi", "razor", "rbs", "re2c", "readli
+-- ne", "regex", "rego", "requirements", "rescript", "rifleconf", "rnoweb", "robot", "robots_txt", "ron", "rst", "ruby", "runescript", "rust", "scala", "scfg", "scheme", "scss", "sflog", "slang", "slim",
+--  "slint", "smali", "smithy", "snakemake", "snl", "solidity", "soql", "sosl", "sourcepawn", "sparql", "sproto", "sql", "squirrel", "ssh_config", "starlark", "strace", "styled", "supercollider", "superh
+-- tml", "surface", "svelte", "sway", "swift", "sxhkdrc", "systemtap", "systemverilog", "t32", "tablegen", "tact", "tcl", "teal", "templ", "tera", "terraform", "textproto", "thrift", "tiger", "tlaplus",
+-- "tmux", "todotxt", "toml", "tsv", "tsx", "turtle", "twig", "typescript", "typespec", "typoscript", "typst", "udev", "ungrammar", "unison", "usd", "uxntal", "v", "vala", "vhdl", "vhs", "vim", "vimdoc",
+--  "vrl", "vue", "wgsl", "wgsl_bevy", "wing", "wxml", "xcompose", "xml", "xresources", "yaml", "yang", "yuck", "zathurarc", "zig" }
+
 ----------------------------------------
 
 -- [[ Setting options ]]
@@ -86,9 +126,7 @@ vim.o.timeoutlen = 300
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
 
--- NOTE: You should make sure your terminal supports this
 vim.o.termguicolors = true
-
 
 if vim.g.neovide then
   vim.o.guifont = "CaskaydiaCove NFM:h12"
@@ -119,14 +157,6 @@ if vim.g.neovide then
   vim.g.neovide_cursor_animate_in_insert_mode = false
 
   vim.g.neovide_cursor_unfocused_outline_width = 0.125
-end
-
-function LoadNeorgWorkspace(workspace)
-  vim.cmd('Neorg workspace ' .. workspace)
-  vim.cmd('Neorg index')
-  DarkThemeName = 'tokyonight-night';
-  LightThemeName = 'tokyonight-day'
-  vim.cmd.colorscheme(DarkThemeName)
 end
 
 -- Ouverture de fichiers binaires en mode xxd
@@ -439,6 +469,12 @@ require('lazy').setup({
       {
         'j-hui/fidget.nvim',
         opts = {
+          notification = {
+            window = {
+              tabstop = 2,
+              avoid = { "NvimTree" },
+            }
+          },
           progress = {
             suppress_on_insert = true,
             ignore_done_already = true,
@@ -566,29 +602,25 @@ require('lazy').setup({
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {}, lazy = false },
 
-  {
-    "vhyrro/luarocks.nvim",
-    priority = 1000, -- Load first
-    config = true, -- Calls setup()
-  },
+  -- {
+  --   "vhyrro/luarocks.nvim",
+  --   priority = 1000, -- Load first
+  --   config = true, -- Calls setup()
+  -- },
   {
     "nvim-neorg/neorg",
-    dependencies = { "luarocks.nvim" },
-    version = false,
+    dependencies = {
+      'nvim-neorg/lua-utils.nvim',
+      'pysan3/pathlib.nvim',
+      'nvim-neotest/nvim-nio',
+      'vhyrro/luarocks.nvim',
+      'nvim-neorg/tree-sitter-norg'
+    },
     config = function()
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = { "norg", "neorg" },
-        callback = function()
-          if pcall(vim.treesitter.start) then
-            vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-            vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-          end
-        end,
-      })
       require("neorg").setup({
         load = {
-          ["core.defaults"] = {}, -- Loads default behaviour
-          ["core.concealer"] = {}, -- Adds pretty icons to your documents
+          ["core.defaults"] = {},
+          ["core.concealer"] = {},
           ["core.completion"] = {
             config = {
               engine = "nvim-cmp",
@@ -602,11 +634,6 @@ require('lazy').setup({
               update_date = false,
             },
           },
-          -- ['external.live-pdf'] = {
-          --   config = {
-          --     server_port = 8025,
-          --   },
-          -- }
         },
       })
     end,
@@ -616,13 +643,12 @@ require('lazy').setup({
       { '<leader>nj', '<Cmd>Neorg journal<CR>', desc = "[N]eorg [J]ournal" },
     },
     cmd = "Neorg",
-    ft = { "norg" },
+    ft = "norg",
   },
 
   -- Fuzzy Finder (files, lsp, etc)
   {
     'nvim-telescope/telescope.nvim',
-    tag = "v0.2.1",
     dependencies = {
       'nvim-lua/plenary.nvim',
     },
@@ -645,29 +671,50 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     branch = "main",
     build = ':TSUpdate',
-    opts = {
-      highlight = { enable = true },
-      indent = { enable = true },
-      folds = { enable = true },
-      ensure_installed = { 'c', 'lua', 'python', 'typescript', 'javascript', 'vue', 'vimdoc', 'vim', 'php', 'go'  }
-    },
     init = function ()
+      require('nvim-treesitter').install(Languages)
+
       vim.api.nvim_create_autocmd('FileType', {
-        pattern = { '<filetype>' },
+        pattern = Languages,
         callback = function()
           vim.treesitter.start()
+
+          -- folds, provided by Neovim
+          vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+          vim.wo.foldmethod = 'expr'
+          vim.wo.foldlevel = 99
+
+          -- indentation, provided by nvim-treesitter
+          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
         end,
       })
-
-      vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
     end,
     lazy = false,
   },
 }, {
+  checker = {
+    enabled = true,
+    check_pinned = true,
+  },
   defaults = {
     lazy = true,
-  }
+  },
+  install = {
+    colorscheme = { DarkThemeName, LightThemeName, "blue" },
+  },
+  rocks = {
+    enabled = false,
+  },
 })
+
+function LoadNeorgWorkspace(workspace)
+  require('lazy').load({ plugins = { "neorg" } })
+  vim.cmd('Neorg workspace ' .. workspace)
+  vim.cmd('Neorg index')
+  DarkThemeName = 'tokyonight-night';
+  LightThemeName = 'tokyonight-day'
+  vim.cmd.colorscheme(DarkThemeName)
+end
 
 vim.keymap.set('n', '<leader>sthl', '<Cmd>lua vim.cmd.colorscheme(LightThemeName)<CR>', { desc = "[S]witch [T]heme : [L]ight"});
 vim.keymap.set('n', '<leader>sthd', '<Cmd>lua vim.opt.background="dark";vim.cmd.colorscheme(DarkThemeName)<CR>', { desc = "[S]witch [T]heme : [D]ark"});
