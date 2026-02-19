@@ -399,7 +399,7 @@ require('lazy').setup({
           }
         },
         filesystem_watchers = {
-          ignore_dirs = { ".git", "**/node_modules", "**/.cache", "**/vendor", "**/var" },
+          ignore_dirs = { ".git", "build", "node_modules", ".cache", "vendor", "var" },
           debounce_delay = 75,
         },
         filters = {
