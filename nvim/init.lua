@@ -175,6 +175,8 @@ if vim.g.neovide then
   vim.g.neovide_cursor_animate_in_insert_mode = false
 
   vim.g.neovide_cursor_unfocused_outline_width = 0.125
+
+  vim.api.nvim_set_keymap('n', '<F11>', ":let g:neovide_fullscreen = !g:neovide_fullscreen<CR>", {})
 end
 
 -- Ouverture de fichiers binaires en mode xxd
@@ -285,7 +287,7 @@ require('lazy').setup({
       temperature = 0.1, -- Lower = focused, higher = creative
       window = {
         layout = 'vertical',
-        width = 0.3,
+        width = 0.25,
       },
       auto_insert_mode = true,
       auto_fold = true, -- Automatically folds non-assistant messages
@@ -346,6 +348,8 @@ require('lazy').setup({
         stages = "static",
         timeout = 5000,
         render = "compact",
+        fps = 1,
+        merge_duplicates = true,
       })
     end,
     lazy = false,
@@ -655,6 +659,7 @@ require('lazy').setup({
         -- NOTE: :h blink-cmp-config-keymap for defining your own keymap
         -- 'default' (recommended) = mappings similar to built-in completions
         preset = 'default',
+        ['<C-k>'] = false,
       },
       appearance = {
         nerd_font_variant = 'mono',
@@ -713,6 +718,7 @@ require('lazy').setup({
   -- },
   {
     "nvim-neorg/neorg",
+    branch = "main",
     dependencies = {
       'nvim-neorg/lua-utils.nvim',
       'pysan3/pathlib.nvim',
