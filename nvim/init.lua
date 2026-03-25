@@ -443,6 +443,7 @@ require('lazy').setup({
             open_win_config = function ()
               local multiple_tabs = vim.fn.tabpagenr("$") > 1
               return {
+                anchor = "NE",
                 relative = "editor",
                 border = "rounded",
                 width = 40,
@@ -451,7 +452,7 @@ require('lazy').setup({
                   vim.api.nvim_get_option("lines") - (multiple_tabs and 5 or 4)
                 ),
                 row = multiple_tabs and 1 or 0,
-                col = 0
+                col=999
               }
             end
           },
