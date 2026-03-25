@@ -282,8 +282,13 @@ require('lazy').setup({
     dependencies = {
       { "nvim-lua/plenary.nvim", branch = "master" },
     },
+    keys = {
+      { '<leader>cc', '<Cmd>CopilotChatToggle<CR>', desc = '[C]opilot [C]hat toggle' },
+      { '<leader>cm', '<Cmd>CopilotChatModels<CR>', desc = '[C]opilot select [M]odel' },
+      { '<leader>cp', '<Cmd>CopilotChatPrompts<CR>', desc = '[C]opilot [P]rompts' },
+    },
     opts = {
-      model = 'gpt-4.1',
+      model = 'claude-4.5-sonnet',
       temperature = 0.1, -- Lower = focused, higher = creative
       window = {
         layout = 'vertical',
@@ -310,7 +315,7 @@ require('lazy').setup({
 
       -- Adjust chat display settings
       require('CopilotChat').setup({
-        highlight_headers = false,
+        highlight_headers = true,
         separator = '---',
         error_header = '> [!ERROR] Error',
       })
