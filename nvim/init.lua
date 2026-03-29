@@ -1,18 +1,20 @@
 
-package.path = package.path .. ";" .. vim.fn.stdpath('config') .. '/?.lua';
-pcall(require, 'local');
-
-
 ---- Global Configuration Variables ----
 
-local searchDebounceDelay = 100 -- Debounce delay for searches with telescope (ms)
+SEARCH_DEBOUNCE_DELAY = 100 -- Debounce delay for searches with telescope (ms)
 
 -- Themes used for <leader>thl and <leader>thd keymaps
-DarkThemeName = 'kanagawa-wave' -- Default dark theme
-LightThemeName = 'tokyonight-day' -- Default light theme
+DARK_THEME_NAME = 'kanagawa-wave' -- Default dark theme
+LIGHT_THEME_NAME = 'tokyonight-day' -- Default light theme
 
+-- Avante
+AVANTE_LOAD_EVENT = "VeryLazy" ---@type string|nil
+AVANTE_MODE = "agentic" ---@type "agentic"|"legacy"
+
+-- Tree-sitter
 Languages = {
   'c',
+  'c_sharp',
   'css',
   'csv',
   'go',
@@ -33,6 +35,11 @@ Languages = {
   'vue',
   'yaml',
 }
+
+
+-- Place overrides in an optional "local.lua" file
+package.path = package.path .. ";" .. vim.fn.stdpath('config') .. '/?.lua';
+pcall(require, 'local');
 
 -- { "ada", "agda", "angular", "apex", "arduino", "asm", "astro", "authzed", "awk", "bash", "bass", "beancount", "bibtex", "bicep", "bitbake", "blade", "bp", "bpftrace", "brightscript", "c", "c3", "c_sha
 -- rp", "cairo", "capnp", "chatito", "circom", "clojure", "cmake", "comment", "commonlisp", "cooklang", "corn", "cpon", "cpp", "css", "csv", "cuda", "cue", "cylc", "d", "dart", "desktop", "devicetree", "
@@ -277,49 +284,56 @@ require('lazy').setup({
       });
     end
   },
+
   {
-    "CopilotC-Nvim/CopilotChat.nvim",
-    dependencies = {
-      { "nvim-lua/plenary.nvim", branch = "master" },
-    },
+    "yetone/avante.nvim",
+    build = vim.fn.has("win32") ~= 0
+      and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
+      or "make",
+    event = AVANTE_LOAD_EVENT,
+    version = false,
+    cmd = "Avante",
+    ---@module 'avante'
+    ---@type avante.Config
     keys = {
-      { '<leader>cc', '<Cmd>CopilotChatToggle<CR>', desc = '[C]opilot [C]hat toggle' },
-      { '<leader>cm', '<Cmd>CopilotChatModels<CR>', desc = '[C]opilot select [M]odel' },
-      { '<leader>cp', '<Cmd>CopilotChatPrompts<CR>', desc = '[C]opilot [P]rompts' },
+        {
+            "<leader>a+",
+            function()
+                local tree_ext = require("avante.extensions.nvim_tree")
+                tree_ext.add_file()
+            end,
+            desc = "Select file in NvimTree",
+            ft = "NvimTree",
+        },
+        {
+            "<leader>a-",
+            function()
+                local tree_ext = require("avante.extensions.nvim_tree")
+                tree_ext.remove_file()
+            end,
+            desc = "Deselect file in NvimTree",
+            ft = "NvimTree",
+        },
     },
     opts = {
-      model = 'claude-4.5-sonnet',
-      temperature = 0.1, -- Lower = focused, higher = creative
-      window = {
-        layout = 'vertical',
-        width = 0.25,
-      },
-      auto_insert_mode = true,
-      auto_fold = true, -- Automatically folds non-assistant messages
+      instructions_file = "AGENTS.md",
+      provider = "copilot",
+      mode = AVANTE_MODE,
     },
-    cmd = "CopilotChat",
-    config = function ()
-      -- Auto-command to customize chat buffer behavior
-      vim.api.nvim_create_autocmd('BufEnter', {
-        pattern = 'copilot-*',
-        callback = function()
-          vim.opt_local.relativenumber = false
-          vim.opt_local.number = false
-          vim.opt_local.conceallevel = 0
-        end,
-      })
-
-      require('render-markdown').setup({
-        file_types = { 'markdown', 'copilot-chat' },
-      })
-
-      -- Adjust chat display settings
-      require('CopilotChat').setup({
-        highlight_headers = true,
-        separator = '---',
-        error_header = '> [!ERROR] Error',
-      })
-    end
+    dependencies = {
+      -- "nvim-lua/plenary.nvim",
+      "MunifTanjim/nui.nvim",
+      "zbirenbaum/copilot.lua",
+      --- The below dependencies are optional,
+      -- "nvim-mini/mini.pick", -- for file_selector provider mini.pick
+      -- "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
+      -- "hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
+      -- "ibhagwan/fzf-lua", -- for file_selector provider fzf
+      -- "stevearc/dressing.nvim", -- for input provider dressing
+      "folke/snacks.nvim", -- for input provider snacks
+      -- "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
+      -- "zbirenbaum/copilot.lua", -- for providers='copilot'
+    },
   },
 
   -- Other plugins 
@@ -328,7 +342,10 @@ require('lazy').setup({
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
     ---@module 'render-markdown'
     ---@type render.md.UserConfig
-    opts = {},
+    opts = {
+      file_types = { "markdown", "Avante" },
+    },
+    ft = { "markdown", "Avante" },
     cmd = "RenderMarkdown"
   },
   {
@@ -816,7 +833,7 @@ require('lazy').setup({
     lazy = true,
   },
   install = {
-    colorscheme = { DarkThemeName, LightThemeName, "blue" },
+    colorscheme = { DARK_THEME_NAME, LIGHT_THEME_NAME, "blue" },
   },
   rocks = {
     enabled = false,
@@ -827,9 +844,9 @@ function LoadNeorgWorkspace(workspace)
   require('lazy').load({ plugins = { "neorg" } })
   vim.cmd('Neorg workspace ' .. workspace)
   vim.cmd('Neorg index')
-  DarkThemeName = 'tokyonight-night';
-  LightThemeName = 'tokyonight-day'
-  vim.cmd.colorscheme(DarkThemeName)
+  DARK_THEME_NAME = 'tokyonight-night';
+  LIGHT_THEME_NAME = 'tokyonight-day'
+  vim.cmd.colorscheme(DARK_THEME_NAME)
 end
 
 vim.keymap.set('n', '<leader>sthl', '<Cmd>lua vim.cmd.colorscheme(LightThemeName)<CR>', { desc = "[S]witch [T]heme : [L]ight"});
@@ -887,7 +904,7 @@ end, { desc = '[/] Fuzzily search in current buffer' })
 
 local debounceTelescope = function(func)
   return function()
-    func({ debounce=searchDebounceDelay })
+    func({ debounce=SEARCH_DEBOUNCE_DELAY })
   end
 end
 
