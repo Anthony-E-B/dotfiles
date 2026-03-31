@@ -11,6 +11,9 @@ LIGHT_THEME_NAME = 'tokyonight-day' -- Default light theme
 AVANTE_LOAD_EVENT = "VeryLazy" ---@type string|nil
 AVANTE_MODE = "agentic" ---@type "agentic"|"legacy"
 
+-- NEOVIDE
+NVIDE_REFRESH_RATE = 60
+
 -- Tree-sitter
 Languages = {
   'c',
@@ -96,6 +99,8 @@ vim.o.conceallevel = 2;
 vim.o.cursorline = true;
 vim.o.cursorcolumn = true;
 
+vim.o.linespace = 1
+
 vim.o.sessionoptions="blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
 -- Set highlight on search
@@ -155,20 +160,19 @@ vim.o.termguicolors = true
 
 if vim.g.neovide then
   vim.o.guifont = "CaskaydiaCove NFM:h12"
-  vim.g.neovide_title_background_color = string.format(
-      "%x",
-      vim.api.nvim_get_hl(0, {id=vim.api.nvim_get_hl_id_by_name("Normal")}).bg
-  )
-  vim.g.neovide_title_text_color = "white"
+  vim.g.neovide_theme = "bg_color";
   vim.opt.linespace = 0
   vim.g.neovide_scroll_animation_length = 0.15
   vim.g.neovide_hide_mouse_when_typing = true
 
+  vim.g.neovide_show_border = false
   vim.g.neovide_no_idle = false
-  vim.g.neovide_refresh_rate = NvideRefreshRate or 50
-  vim.g.neovide_refresh_rate_idle = 0 -- 1FPS when idle
+  vim.g.neovide_refresh_rate = NVIDE_REFRESH_RATE or 60
+  vim.g.neovide_refresh_rate_idle = 1 -- 1FPS when idle
   vim.g.neovide_confirm_quit = false
+
   vim.g.neovide_remember_window_size = true
+  vim.g.neovide_corner_preference = "round_small"
 
   vim.g.neovide_position_animation_length = 0.05
 
@@ -849,8 +853,8 @@ function LoadNeorgWorkspace(workspace)
   vim.cmd.colorscheme(DARK_THEME_NAME)
 end
 
-vim.keymap.set('n', '<leader>sthl', '<Cmd>lua vim.cmd.colorscheme(LightThemeName)<CR>', { desc = "[S]witch [T]heme : [L]ight"});
-vim.keymap.set('n', '<leader>sthd', '<Cmd>lua vim.opt.background="dark";vim.cmd.colorscheme(DarkThemeName)<CR>', { desc = "[S]witch [T]heme : [D]ark"});
+vim.keymap.set('n', '<leader>sthl', '<Cmd>lua vim.cmd.colorscheme(LIGHT_THEME_NAME)<CR>', { desc = "[S]witch [T]heme : [L]ight"});
+vim.keymap.set('n', '<leader>sthd', '<Cmd>lua vim.opt.background="dark";vim.cmd.colorscheme(DARK_THEME_NAME)<CR>', { desc = "[S]witch [T]heme : [D]ark"});
 
 -- [[ General Keymaps ]]
 
